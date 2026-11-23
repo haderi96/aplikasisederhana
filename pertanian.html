@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgriSmart - Sistem Manajemen Pertanian Modern</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js CDN untuk Grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', "sans-serif"],
+            },
+            colors: {
+              agri: {
+                50: "#f0fdf4",
+                100: "#dcfce7",
+                500: "#22c55e",
+                600: "#16a34a",
+                700: "#15803d",
+                800: "#166534",
+                900: "#14532d",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+      .tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800 font-sans antialiased">
+    <div class="flex h-screen overflow-hidden">
+      <!-- Overlay Mobile Sidebar -->
+      <div
+        id="sidebarOverlay"
+        onclick="toggleSidebar()"
+        class="fixed inset-0 bg-slate-900/50 z-20 hidden lg:hidden backdrop-blur-sm transition-opacity"
+      ></div>
+
+      <!-- Sidebar Navigasi -->
+      <aside
+        id="sidebar"
+        class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col"
+      >
+        <!-- Logo Brand -->
+        <div
+          class="flex items-center justify-between h-16 px-6 border-b border-slate-100"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="bg-agri-600 text-white p-2 rounded-xl shadow-md shadow-agri-600/20"
+            >
+              <i data-lucide="sprout" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <span class="font-bold text-lg tracking-tight text-slate-900"
+                >Agri<span class="text-agri-600">Smart</span></span
+              >
+              <span
+                class="block text-[10px] font-medium text-slate-400 uppercase tracking-wider"
+                >Smart Farming OS</span
+              >
+            </div>
+          </div>
+          <button
+            onclick="toggleSidebar()"
+            class="lg:hidden text-slate-400 hover:text-slate-600"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Menu Navigasi -->
+        <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+          <button
+            onclick="switchTab('dashboard', this)"
+            class="nav-btn active w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl bg-agri-50 text-agri-700 transition-all"
+          >
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+            Dashboard Utama
+          </button>
+          <button
+            onclick="switchTab('lahan', this)"
+            class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all"
+          >
+            <i data-lucide="map-pin" class="w-5 h-5"></i>
+            Monitoring Lahan
+          </button>
+          <button
+            onclick="switchTab('jadwal', this)"
+            class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all"
+          >
+            <i data-lucide="calendar-check" class="w-5 h-5"></i>
+            Jadwal Perawatan
+          </button>
+          <button
+            onclick="switchTab('panen', this)"
+            class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all"
+          >
+            <i data-lucide="wheat" class="w-5 h-5"></i>
+            Catatan & Hasil Panen
+          </button>
+        </nav>
+
+        <!-- Info Cuaca Mini di Sidebar -->
+        <div
+          class="p-4 m-4 bg-gradient-to-br from-agri-600 to-agri-800 rounded-2xl text-white shadow-lg"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-agri-100">Cuaca Kebun</span>
+            <i data-lucide="cloud-sun" class="w-5 h-5 text-amber-300"></i>
+          </div>
+          <div class="text-2xl font-bold">28°C</div>
+          <p class="text-xs text-agri-100 mt-1">
+            Cerah Berawan • Kelembapan 72%
+          </p>
+        </div>
+      </aside>
+
+      <!-- Konten Utama -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Atas -->
+        <header
+          class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 z-10"
+        >
+          <div class="flex items-center gap-3">
+            <button
+              onclick="toggleSidebar()"
+              class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+            >
+              <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <h1
+              id="pageTitle"
+              class="text-lg lg:text-xl font-bold text-slate-800"
+            >
+              Dashboard Utama
+            </h1>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span
+              id="currentDate"
+              class="hidden sm:inline-block text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full"
+            ></span>
+            <button
+              onclick="openModalPanen()"
+              class="flex items-center gap-2 bg-agri-600 hover:bg-agri-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl shadow-sm transition-all"
+            >
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Catat Panen</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Area Konten Scrollable -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 space-y-6">
+          <!-- ==================== TAB 1: DASHBOARD ==================== -->
+          <section id="dashboard" class="tab-content active space-y-6">
+            <!-- Kartu Statistik Utama -->
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6"
+            >
+              <div
+                class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs font-medium text-slate-500">
+                      Total Luas Lahan
+                    </p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1">
+                      4.5 Ha
+                    </h3>
+                  </div>
+                  <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                    <i data-lucide="layers" class="w-6 h-6"></i>
+                  </div>
+                </div>
+                <div
+                  class="mt-3 flex items-center text-xs text-emerald-600 font-medium"
+                >
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5 mr-1"></i>
+                  4 Blok Lahan Aktif
+                </div>
+              </div>
+
+              <div
+                class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs font-medium text-slate-500">
+                      Kelembapan Tanah
+                    </p>
+                    <h3
+                      class="text-2xl font-bold text-slate-800 mt-1"
+                      id="statMoisture"
+                    >
+                      68%
+                    </h3>
+                  </div>
+                  <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                    <i data-lucide="droplets" class="w-6 h-6"></i>
+                  </div>
+                </div>
+                <div
+                  class="mt-3 flex items-center text-xs text-blue-600 font-medium"
+                >
+                  <span>Kondisi Optimal (60% - 75%)</span>
+                </div>
+              </div>
+
+              <div
+                class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs font-medium text-slate-500">
+                      Total Hasil Panen
+                    </p>
+                    <h3
+                      class="text-2xl font-bold text-slate-800 mt-1"
+                      id="statTotalPanen"
+                    >
+                      0 Kg
+                    </h3>
+                  </div>
+                  <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                    <i data-lucide="package-check" class="w-6 h-6"></i>
+                  </div>
+                </div>
+                <div
+                  class="mt-3 flex items-center text-xs text-amber-600 font-medium"
+                >
+                  <span>Akumulasi tercatat</span>
+                </div>
+              </div>
+
+              <div
+                class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs font-medium text-slate-500">
+                      Estimasi Pendapatan
+                    </p>
+                    <h3
+                      class="text-2xl font-bold text-slate-800 mt-1"
+                      id="statPendapatan"
+                    >
+                      Rp 0
+                    </h3>
+                  </div>
+                  <div class="p-3 bg-purple-50 text-purple-600 rounded-xl">
+                    <i data-lucide="wallet" class="w-6 h-6"></i>
+                  </div>
+                </div>
+                <div
+                  class="mt-3 flex items-center text-xs text-emerald-600 font-medium"
+                >
+                  <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i>
+                  +12.5% dari bulan lalu
+                </div>
+              </div>
+            </div>
+
+            <!-- Grafik & Kontrol Irigasi Cepat -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- Grafik Hasil Panen -->
+              <div
+                class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm"
+              >
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 class="text-base font-bold text-slate-800">
+                      Statistik Produktivitas Panen (Kg)
+                    </h2>
+                    <p class="text-xs text-slate-500">
+                      Perbandingan hasil panen 6 bulan terakhir
+                    </p>
+                  </div>
+                  <span
+                    class="text-xs font-semibold bg-agri-50 text-agri-700 px-3 py-1 rounded-full"
+                    >Tahun 2026</span
+                  >
+                </div>
+                <div class="h-64">
+                  <canvas id="harvestChart"></canvas>
+                </div>
+              </div>
+
+              <!-- Kontrol Irigasi IoT Simulasi -->
+              <div
+                class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between"
+              >
+                <div>
+                  <h2 class="text-base font-bold text-slate-800">
+                    Kontrol Irigasi Pintar
+                  </h2>
+                  <p class="text-xs text-slate-500 mb-5">
+                    Aktifkan pompa penyiraman otomatis per blok
+                  </p>
+
+                  <div class="space-y-4">
+                    <div
+                      class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100"
+                    >
+                      <div>
+                        <p class="text-sm font-semibold text-slate-800">
+                          Blok A - Cabai Rawit
+                        </p>
+                        <p class="text-xs text-slate-500" id="statusPompaA">
+                          Status: Siaga (Kelembapan 65%)
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          class="sr-only peer"
+                          onchange="togglePompa('A', this.checked)"
+                        />
+                        <div
+                          class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-agri-600"
+                        ></div>
+                      </label>
+                    </div>
+
+                    <div
+                      class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100"
+                    >
+                      <div>
+                        <p class="text-sm font-semibold text-slate-800">
+                          Blok B - Tomat Cherry
+                        </p>
+                        <p class="text-xs text-slate-500" id="statusPompaB">
+                          Status: Siaga (Kelembapan 71%)
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          class="sr-only peer"
+                          onchange="togglePompa('B', this.checked)"
+                        />
+                        <div
+                          class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-agri-600"
+                        ></div>
+                      </label>
+                    </div>
+
+                    <div
+                      class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100"
+                    >
+                      <div>
+                        <p class="text-sm font-semibold text-slate-800">
+                          Blok C - Melon Hidroponik
+                        </p>
+                        <p class="text-xs text-slate-500" id="statusPompaC">
+                          Status: Menyiram (Nutrisi AB Mix)
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked
+                          class="sr-only peer"
+                          onchange="togglePompa('C', this.checked)"
+                        />
+                        <div
+                          class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-agri-600"
+                        ></div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500"
+                >
+                  <span
+                    >Tekanan Air:
+                    <strong class="text-slate-700">2.4 Bar</strong></span
+                  >
+                  <span
+                    class="text-emerald-600 font-semibold flex items-center gap-1"
+                  >
+                    <span
+                      class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"
+                    ></span>
+                    Sensor Online
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== TAB 2: MONITORING LAHAN ==================== -->
+          <section id="lahan" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Kartu Lahan 1 -->
+              <div
+                class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm"
+              >
+                <div
+                  class="h-32 bg-gradient-to-r from-emerald-600 to-teal-700 p-5 flex flex-col justify-between text-white"
+                >
+                  <div class="flex justify-between items-start">
+                    <span
+                      class="bg-white/20 backdrop-blur-md text-xs font-semibold px-2.5 py-1 rounded-lg"
+                      >Blok A • 1.5 Ha</span
+                    >
+                    <span
+                      class="bg-emerald-400/20 text-emerald-100 text-xs px-2.5 py-1 rounded-full border border-emerald-300/30"
+                      >Fase Berbuah</span
+                    >
+                  </div>
+                  <h3 class="text-lg font-bold">Cabai Rawit Merah</h3>
+                </div>
+                <div class="p-5 space-y-4">
+                  <div
+                    class="grid grid-cols-3 gap-2 text-center bg-slate-50 p-3 rounded-xl"
+                  >
+                    <div>
+                      <span class="block text-[11px] text-slate-400"
+                        >pH Tanah</span
+                      >
+                      <span class="font-bold text-sm text-slate-800">6.4</span>
+                    </div>
+                    <div class="border-x border-slate-200">
+                      <span class="block text-[11px] text-slate-400">Suhu</span>
+                      <span class="font-bold text-sm text-slate-800">29°C</span>
+                    </div>
+                    <div>
+                      <span class="block text-[11px] text-slate-400">Umur</span>
+                      <span class="font-bold text-sm text-slate-800"
+                        >65 HST</span
+                      >
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-slate-500">Progres Menuju Panen</span>
+                      <span class="font-bold text-agri-600">80%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2">
+                      <div
+                        class="bg-agri-600 h-2 rounded-full"
+                        style="width: 80%"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Kartu Lahan 2 -->
+              <div
+                class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm"
+              >
+                <div
+                  class="h-32 bg-gradient-to-r from-amber-500 to-orange-600 p-5 flex flex-col justify-between text-white"
+                >
+                  <div class="flex justify-between items-start">
+                    <span
+                      class="bg-white/20 backdrop-blur-md text-xs font-semibold px-2.5 py-1 rounded-lg"
+                      >Blok B • 1.2 Ha</span
+                    >
+                    <span
+                      class="bg-amber-300/20 text-amber-100 text-xs px-2.5 py-1 rounded-full border border-amber-200/30"
+                      >Siap Panen</span
+                    >
+                  </div>
+                  <h3 class="text-lg font-bold">Jagung Manis Hibrida</h3>
+                </div>
+                <div class="p-5 space-y-4">
+                  <div
+                    class="grid grid-cols-3 gap-2 text-center bg-slate-50 p-3 rounded-xl"
+                  >
+                    <div>
+                      <span class="block text-[11px] text-slate-400"
+                        >pH Tanah</span
+                      >
+                      <span class="font-bold text-sm text-slate-800">6.1</span>
+                    </div>
+                    <div class="border-x border-slate-200">
+                      <span class="block text-[11px] text-slate-400">Suhu</span>
+                      <span class="font-bold text-sm text-slate-800">30°C</span>
+                    </div>
+                    <div>
+                      <span class="block text-[11px] text-slate-400">Umur</span>
+                      <span class="font-bold text-sm text-slate-800"
+                        >72 HST</span
+                      >
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-slate-500">Progres Menuju Panen</span>
+                      <span class="font-bold text-amber-600">95%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2">
+                      <div
+                        class="bg-amber-500 h-2 rounded-full"
+                        style="width: 95%"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Kartu Lahan 3 -->
+              <div
+                class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm"
+              >
+                <div
+                  class="h-32 bg-gradient-to-r from-cyan-600 to-blue-700 p-5 flex flex-col justify-between text-white"
+                >
+                  <div class="flex justify-between items-start">
+                    <span
+                      class="bg-white/20 backdrop-blur-md text-xs font-semibold px-2.5 py-1 rounded-lg"
+                      >Greenhouse • 0.8 Ha</span
+                    >
+                    <span
+                      class="bg-cyan-300/20 text-cyan-100 text-xs px-2.5 py-1 rounded-full border border-cyan-200/30"
+                      >Vegetatif</span
+                    >
+                  </div>
+                  <h3 class="text-lg font-bold">Melon Golden Hidroponik</h3>
+                </div>
+                <div class="p-5 space-y-4">
+                  <div
+                    class="grid grid-cols-3 gap-2 text-center bg-slate-50 p-3 rounded-xl"
+                  >
+                    <div>
+                      <span class="block text-[11px] text-slate-400"
+                        >PPM Nutrisi</span
+                      >
+                      <span class="font-bold text-sm text-slate-800">1250</span>
+                    </div>
+                    <div class="border-x border-slate-200">
+                      <span class="block text-[11px] text-slate-400"
+                        >pH Air</span
+                      >
+                      <span class="font-bold text-sm text-slate-800">5.8</span>
+                    </div>
+                    <div>
+                      <span class="block text-[11px] text-slate-400">Umur</span>
+                      <span class="font-bold text-sm text-slate-800"
+                        >34 HST</span
+                      >
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-slate-500">Progres Menuju Panen</span>
+                      <span class="font-bold text-blue-600">48%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2">
+                      <div
+                        class="bg-blue-600 h-2 rounded-full"
+                        style="width: 48%"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== TAB 3: JADWAL PERAWATAN ==================== -->
+          <section id="jadwal" class="tab-content space-y-6">
+            <div
+              class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"
+            >
+              <div
+                class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6"
+              >
+                <div>
+                  <h2 class="text-base font-bold text-slate-800">
+                    Agenda Pemupukan & Pengendalian Hama
+                  </h2>
+                  <p class="text-xs text-slate-500">
+                    Tandai tugas yang sudah selesai dikerjakan di lapangan
+                  </p>
+                </div>
+              </div>
+
+              <div class="space-y-3" id="taskList">
+                <!-- Item Jadwal -->
+                <label
+                  class="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200/70 cursor-pointer transition-all"
+                >
+                  <div class="flex items-center gap-3.5">
+                    <input
+                      type="checkbox"
+                      checked
+                      class="w-5 h-5 rounded text-agri-600 focus:ring-agri-500"
+                    />
+                    <div>
+                      <p class="text-sm font-semibold text-slate-800">
+                        Pemupukan NPK Mutiara 16-16-16 (Blok A)
+                      </p>
+                      <p class="text-xs text-slate-500">
+                        Dosis: 250 ml per tanaman • Petugas: Pak Budi
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full"
+                    >Hari Ini</span
+                  >
+                </label>
+
+                <label
+                  class="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200/70 cursor-pointer transition-all"
+                >
+                  <div class="flex items-center gap-3.5">
+                    <input
+                      type="checkbox"
+                      class="w-5 h-5 rounded text-agri-600 focus:ring-agri-500"
+                    />
+                    <div>
+                      <p class="text-sm font-semibold text-slate-800">
+                        Penyemprotan Fungisida Organik (Blok B)
+                      </p>
+                      <p class="text-xs text-slate-500">
+                        Pencegahan jamur daun • Jadwal Pagi 07:00 WITA
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    class="text-xs font-semibold bg-amber-100 text-amber-700 px-3 py-1 rounded-full"
+                    >Besok</span
+                  >
+                </label>
+
+                <label
+                  class="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200/70 cursor-pointer transition-all"
+                >
+                  <div class="flex items-center gap-3.5">
+                    <input
+                      type="checkbox"
+                      class="w-5 h-5 rounded text-agri-600 focus:ring-agri-500"
+                    />
+                    <div>
+                      <p class="text-sm font-semibold text-slate-800">
+                        Kalibrasi Sensor pH & EC Hidroponik
+                      </p>
+                      <p class="text-xs text-slate-500">
+                        Greenhouse Melon • Pengecekan tandon nutrisi
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    class="text-xs font-semibold bg-slate-200 text-slate-700 px-3 py-1 rounded-full"
+                    >25 Nov 2026</span
+                  >
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== TAB 4: CATATAN PANEN ==================== -->
+          <section id="panen" class="tab-content space-y-6">
+            <div
+              class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+            >
+              <div
+                class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
+                <div>
+                  <h2 class="text-base font-bold text-slate-800">
+                    Riwayat Pencatatan Hasil Panen
+                  </h2>
+                  <p class="text-xs text-slate-500">
+                    Data tersimpan otomatis di browser Anda
+                  </p>
+                </div>
+                <button
+                  onclick="openModalPanen()"
+                  class="inline-flex items-center justify-center gap-2 bg-agri-600 hover:bg-agri-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all"
+                >
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Data
+                  Panen
+                </button>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr
+                      class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200"
+                    >
+                      <th class="py-3.5 px-6 font-semibold">Tanggal</th>
+                      <th class="py-3.5 px-6 font-semibold">Komoditas</th>
+                      <th class="py-3.5 px-6 font-semibold">Blok Lahan</th>
+                      <th class="py-3.5 px-6 font-semibold">Berat (Kg)</th>
+                      <th class="py-3.5 px-6 font-semibold">Total Nilai</th>
+                      <th class="py-3.5 px-6 font-semibold text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="tabelPanenBody"
+                    class="divide-y divide-slate-100 text-sm"
+                  >
+                    <!-- Data di-render via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Modal Tambah Data Panen -->
+    <div
+      id="modalPanen"
+      class="fixed inset-0 bg-slate-900/50 z-50 hidden items-center justify-center p-4 backdrop-blur-sm"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl animate-[fadeIn_0.2s_ease-out]"
+      >
+        <div
+          class="flex items-center justify-between pb-4 border-b border-slate-100"
+        >
+          <h3 class="text-lg font-bold text-slate-800">
+            Catat Hasil Panen Baru
+          </h3>
+          <button
+            onclick="closeModalPanen()"
+            class="text-slate-400 hover:text-slate-600"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <form
+          id="formPanen"
+          onsubmit="simpanPanen(event)"
+          class="mt-4 space-y-4"
+        >
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1"
+              >Komoditas Tanaman</label
+            >
+            <input
+              type="text"
+              id="inputKomoditas"
+              required
+              placeholder="Contoh: Cabai Rawit Merah"
+              class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-agri-600"
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1"
+                >Blok Lahan</label
+              >
+              <select
+                id="inputBlok"
+                class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-agri-600"
+              >
+                <option value="Blok A">Blok A</option>
+                <option value="Blok B">Blok B</option>
+                <option value="Greenhouse C">Greenhouse C</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1"
+                >Tanggal Panen</label
+              >
+              <input
+                type="date"
+                id="inputTanggal"
+                required
+                class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-agri-600"
+              />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1"
+                >Berat Panen (Kg)</label
+              >
+              <input
+                type="number"
+                id="inputBerat"
+                required
+                min="1"
+                placeholder="150"
+                class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-agri-600"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1"
+                >Harga / Kg (Rp)</label
+              >
+              <input
+                type="number"
+                id="inputHarga"
+                required
+                min="500"
+                placeholder="35000"
+                class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-agri-600"
+              />
+            </div>
+          </div>
+          <div class="pt-3 flex justify-end gap-2">
+            <button
+              type="button"
+              onclick="closeModalPanen()"
+              class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              class="px-5 py-2 text-sm font-semibold bg-agri-600 hover:bg-agri-700 text-white rounded-xl shadow-sm"
+            >
+              Simpan Data
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Script Logika Aplikasi -->
+    <script>
+      // Inisialisasi Lucide Icons
+      lucide.createIcons();
+
+      // Set Tanggal Hari Ini di Header & Form
+      const today = new Date();
+      document.getElementById("currentDate").innerText =
+        today.toLocaleDateString("id-ID", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      document.getElementById("inputTanggal").valueAsDate = today;
+
+      // Toggle Sidebar Mobile
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        sidebar.classList.toggle("-translate-x-full");
+        overlay.classList.toggle("hidden");
+      }
+
+      // Navigasi Tab
+      function switchTab(tabId, btnElement) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((tab) => tab.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+
+        document.querySelectorAll(".nav-btn").forEach((btn) => {
+          btn.classList.remove("bg-agri-50", "text-agri-700", "font-semibold");
+          btn.classList.add("text-slate-600", "font-medium");
+        });
+        btnElement.classList.add(
+          "bg-agri-50",
+          "text-agri-700",
+          "font-semibold",
+        );
+        btnElement.classList.remove("text-slate-600", "font-medium");
+
+        const titles = {
+          dashboard: "Dashboard Utama",
+          lahan: "Monitoring Lahan & Tanaman",
+          jadwal: "Jadwal Perawatan Kebun",
+          panen: "Catatan & Hasil Panen",
+        };
+        document.getElementById("pageTitle").innerText = titles[tabId];
+
+        if (window.innerWidth < 1024) toggleSidebar();
+      }
+
+      // Simulasi Kontrol Pompa Irigasi
+      function togglePompa(blok, isOn) {
+        const statusEl = document.getElementById(`statusPompa${blok}`);
+        if (isOn) {
+          statusEl.innerText = "Status: Menyiram Aktif...";
+          statusEl.classList.add("text-agri-600", "font-semibold");
+        } else {
+          statusEl.innerText = "Status: Siaga (Standby)";
+          statusEl.classList.remove("text-agri-600", "font-semibold");
+        }
+      }
+
+      // Manajemen Data Panen (LocalStorage)
+      let dataPanen = JSON.parse(localStorage.getItem("agrismart_panen")) || [
+        {
+          id: 1,
+          tanggal: "2026-11-18",
+          komoditas: "Cabai Rawit Merah",
+          blok: "Blok A",
+          berat: 185,
+          harga: 42000,
+        },
+        {
+          id: 2,
+          tanggal: "2026-11-12",
+          komoditas: "Melon Golden",
+          blok: "Greenhouse C",
+          berat: 320,
+          harga: 25000,
+        },
+        {
+          id: 3,
+          tanggal: "2026-11-05",
+          komoditas: "Jagung Manis",
+          blok: "Blok B",
+          berat: 540,
+          harga: 8500,
+        },
+      ];
+
+      function renderPanen() {
+        const tbody = document.getElementById("tabelPanenBody");
+        tbody.innerHTML = "";
+        let totalKg = 0;
+        let totalRp = 0;
+
+        dataPanen.forEach((item) => {
+          const subtotal = item.berat * item.harga;
+          totalKg += Number(item.berat);
+          totalRp += subtotal;
+
+          tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3.5 px-6 text-slate-600">${item.tanggal}</td>
+                        <td class="py-3.5 px-6 font-semibold text-slate-800">${item.komoditas}</td>
+                        <td class="py-3.5 px-6"><span class="bg-agri-50 text-agri-700 text-xs font-semibold px-2.5 py-1 rounded-lg">${item.blok}</span></td>
+                        <td class="py-3.5 px-6 font-medium text-slate-700">${item.berat.toLocaleString("id-ID")} Kg</td>
+                        <td class="py-3.5 px-6 font-semibold text-emerald-600">Rp ${subtotal.toLocaleString("id-ID")}</td>
+                        <td class="py-3.5 px-6 text-right">
+                            <button onclick="hapusPanen(${item.id})" class="text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-colors" title="Hapus">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+        });
+
+        document.getElementById("statTotalPanen").innerText =
+          `${totalKg.toLocaleString("id-ID")} Kg`;
+        document.getElementById("statPendapatan").innerText =
+          `Rp ${(totalRp / 1000000).toFixed(2)} Jt`;
+        localStorage.setItem("agrismart_panen", JSON.stringify(dataPanen));
+        lucide.createIcons();
+      }
+
+      function openModalPanen() {
+        const modal = document.getElementById("modalPanen");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+
+      function closeModalPanen() {
+        const modal = document.getElementById("modalPanen");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+
+      function simpanPanen(e) {
+        e.preventDefault();
+        const baru = {
+          id: Date.now(),
+          komoditas: document.getElementById("inputKomoditas").value,
+          blok: document.getElementById("inputBlok").value,
+          tanggal: document.getElementById("inputTanggal").value,
+          berat: Number(document.getElementById("inputBerat").value),
+          harga: Number(document.getElementById("inputHarga").value),
+        };
+        dataPanen.unshift(baru);
+        renderPanen();
+        document.getElementById("formPanen").reset();
+        document.getElementById("inputTanggal").valueAsDate = new Date();
+        closeModalPanen();
+      }
+
+      function hapusPanen(id) {
+        dataPanen = dataPanen.filter((item) => item.id !== id);
+        renderPanen();
+      }
+
+      // Inisialisasi Chart.js
+      const ctx = document.getElementById("harvestChart").getContext("2d");
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Jun", "Jul", "Agu", "Sep", "Okt", "Nov"],
+          datasets: [
+            {
+              label: "Hasil Panen (Kg)",
+              data: [820, 950, 890, 1120, 980, 1045],
+              backgroundColor: "#16a34a",
+              borderRadius: 8,
+              barThickness: 28,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: "#f1f5f9" },
+              border: { display: false },
+            },
+            x: { grid: { display: false }, border: { display: false } },
+          },
+        },
+      });
+
+      // Jalankan render awal
+      renderPanen();
+    </script>
+  </body>
+</html>
